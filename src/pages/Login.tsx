@@ -1,6 +1,8 @@
 import { FormEvent, useState } from 'react';
 import { supabase } from '../lib/supabase';
 
+const authRedirectUrl = import.meta.env.PROD ? 'https://opmatrix1.github.io/Tally/#/' : window.location.origin + import.meta.env.BASE_URL + '#/';
+
 export default function Login() {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
@@ -15,7 +17,11 @@ export default function Login() {
     const result =
       mode === 'signin'
         ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ email, password });
+        : await supabase.auth.signUp({
+            email,
+            password,
+            options: { emailRedirectTo: authRedirectUrl }
+          });
     setBusy(false);
     if (result.error) {
       setMessage(result.error.message);
